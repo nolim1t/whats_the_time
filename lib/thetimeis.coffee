@@ -38,13 +38,24 @@ currenttime = (info, cb) ->
 	request {uri: url, method: "GET"}, (e,r,b) ->
 		if not e and r.statusCode == 200
 			try
-				cb({time: b, meta: 200})
+				cb({time: b, meta: {code: 200}})
 			catch e
 				cb({meta: {code: 500, msg: e}})
 		else
 			cb({meta: {code: r.statusCode}})
 
+# coffee -e 'require("./lib/thetimeis.coffee").tztotime {identifier: "tester", loc: "-33.859972,151.211111"}, (cb) -> console.log cb'
+tztotime = (info, cb) ->
+	if info.loc != undefined and info.identifier != undefined
+		require("./thetimeis.coffee").tz {identifier: info.identifier, loc: info.loc}, (ccb) ->
+			if ccb.meta.code == 200
+				require(".//thetimeis.coffee").time {tzid: ccb.tzid, ts: Math.round(Date.now() / 1000)}, (ctcb) ->
+					cb(ctcb)
+			else
+				cb({meta: ccb.meta}) 
+			
 module.exports = {
 	tz: mytz,
-	time: currenttime
+	time: currenttime,
+	tztotime: tztotime
 }
