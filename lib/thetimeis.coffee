@@ -5,7 +5,8 @@ mongo = require './mongo.coffee'
 mytz = (info, cb) ->
 	ts = Math.round(Date.now() / 1000)
 	expiryts = ts + (process.env.LOCATIONEXPIRY || 86400)
-	loc = info.loc
+	# Introduce some randomness into location	
+	loc = (parseFloat(info.loc.split(",")[0]) + 0.01).toString() + "," + (parseFloat(info.loc.split(",")[1]) + 0.01).toString()
 	url = "https://maps.googleapis.com/maps/api/timezone/json?location=" + encodeURIComponent(loc) + "&timestamp=" + encodeURIComponent(ts) + "&sensor=false"
 	mongo.dbhandler (db) ->
 		collection = db.collection('lasttz')
