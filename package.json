@@ -1,0 +1,14 @@
+{
+    "name": "whats_the_time",
+    "version": "0.0.1",
+    "dependencies": {
+    	"coffee-script": "1.2.0",
+    	"request": "2.9.3",
+        "mongodb": "0.9.9-8",
+        "mongodb-wrapper": "0.3.0"
+    },
+    "engines": {
+        "node": "0.8.x",
+        "npm": "1.1.x"
+    }
+}
