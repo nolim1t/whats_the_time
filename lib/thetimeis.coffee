@@ -1,6 +1,35 @@
 request = require 'request'
 mongo = require './mongo.coffee'
 
+# coffee -e 'require("./lib/thetimeis.coffee").updatetzfromfs {foursquareid: "", tzid: ""}, (cb) -> console.log cb'
+updatetzfromfs = (info, cb) ->
+	if info.foursquareid != undefined and info.tzid != undefined
+		mongo.dbhandler (db) ->
+			collection = db.collection("users")
+			query = {foursquareid: info.foursquareid.toString()}
+			collection.find(query).toArray (e,a) ->
+				if a.length == 1
+					collection.update query, {$set: {tz: info.tzid}}, (err, updated) -> console.log "Updated profile with " + info.tzid
+					cb({meta: {code: 200, msg: "Done"}})
+				else
+					cb({meta: {code: 400, msg: "Invalid user"}})
+	else
+		cb({meta: {code: 400, msg: "Invalid parameters"}})
+
+# coffee -e 'require("./lib/thetimeis.coffee").gettzfromdb {slug: ""}, (cb) -> console.log cb'
+gettzfromdb = (info, cb) ->
+	if info.slug != undefined
+		mongo.dbhandler (db) ->
+			collection = db.collection("users")
+			query = {randomslug: info.slug}
+			collection.find(query).toArray (e, a) ->
+				if a.length == 1
+					cb({meta: {code: 200, msg: "OK"}, tzinfo: a[0].tz})
+				else
+					cb({meta: {code: 400, msg: "Cant find user"}})
+	else
+		cb({meta: {code: 400, msg: "Invalid parameters"}})
+
 # coffee -e 'require("./lib/thetimeis.coffee").tz {identifier: "tester", loc: "-33.859972,151.211111"}, (cb) -> console.log cb'
 mytz = (info, cb) ->
 	ts = Math.round(Date.now() / 1000)
@@ -57,5 +86,7 @@ tztotime = (info, cb) ->
 module.exports = {
 	tz: mytz,
 	time: currenttime,
-	tztotime: tztotime
+	tztotime: tztotime,
+	updatetzfromfs: updatetzfromfs,
+	gettzfromdb: gettzfromdb
 }
